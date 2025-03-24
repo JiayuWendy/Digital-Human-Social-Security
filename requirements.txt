@@ -1,0 +1,26 @@
+# 核心库
+ultralytics==8.1.0      # YOLOv8 库
+torch>=2.0.0            # PyTorch 深度学习框架
+torchvision>=0.15.0     # PyTorch 视觉库
+
+# 图像处理与视频流
+opencv-python>=4.7.0    # OpenCV 图像处理
+numpy>=1.23.5           # 数值计算库
+face-recognition>=1.3.0 # 人脸识别库
+dlib>=19.24.0           # 人脸特征提取库
+
+# FastAPI 服务框架
+fastapi>=0.101.0        # 后端服务框架
+uvicorn>=0.22.0         # ASGI 服务器
+pydantic>=2.0.0         # 数据校验
+
+# 数据处理与存储
+pandas>=2.0.3            # 数据处理库
+sqlalchemy>=2.0.0        # 数据库 ORM
+
+# 可选：模型优化
+onnx>=1.13.0            # ONNX 加速推理
+onnxruntime>=1.16.0     # ONNX 运行时
+
+# 可选：多线程处理
+concurrent-log-handler>=0.9.24
