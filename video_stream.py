@@ -1,4 +1,6 @@
 """
+video_stream.py
+
 实时视频流检测
 
 功能演示
@@ -7,106 +9,52 @@
 按下 q 键退出
 """
 
+"""
+video_stream.py
+摄像头实时视频流：
+ - 实时采集多角度人脸
+ - 自动保存至指定路径
+"""
 import cv2
-import numpy as np
-from ultralytics import YOLO
-import torch
+import os
+import time
 
-import face_recognition
-from face_recognition import FaceAuth
-from yolo_detector import YOLOv8Detector
-
-# 初始化 YOLOv8 检测器和人脸识别模块
-MODEL_PATH = "./models/yolov8n.pt"
-
-# 禁用 PyTorch 的安全限制，允许加载所有内容
-torch.serialization.add_safe_globals([YOLO])
-
-detector = YOLOv8Detector(MODEL_PATH)
-auth = FaceAuth()
-
-def draw_results(frame, name, confidence, x1, y1, x2, y2):
+def capture_face(save_dir, username):
     """
-    在视频流上绘制识别结果
-
-    -在视频流上绘制人脸框与名称
-    -置信度 > 60% 显示绿色，低于 60% 显示红色
-    """
-    color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
-
-    # 绘制人脸框
-    cv2.rectangle(frame, (int(x1), int(y1)), (int(x2, int(y2)), color, 2)
-
-    # 显示名称和置信度
-    label = f"{name} ({confidence}%)" if confidence else "Unknown"
-    cv2.putText(frame, label, (int(x1), int(y1) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-
-def process_frame(frame):
-    """
-    处理每一帧视频流：
-    - YOLOv8 检测人脸
-    - 人脸识别比对
-    - 显示识别结果
-    """
-    faces = detector.detect_faces(frame)
-
-    for x1, y1, x2, y2, face in faces:
-        if face is not None and face.size > 0:
-            # 打印 face 的类型和形状
-            print(type(face), face.shape)
-
-            # 确保 face 是 numpy.ndarray 类型
-            if isinstance(face, np.ndarray):
-                # 人脸编码比对
-                encodings = face_recognition.face_encodings(face)
-
-                if encodings:
-                    encoding = encodings[0]
-                    distances = face_recognition.face_distance(auth.known_face_encodings, encoding)
-
-                    # 匹配最接近的人脸
-                    best_match_index = np.argmin(distances)
-                    if distances[best_match_index] < 0.6:
-                        name = auth.known_face_names[best_match_index]
-                        confidence = round((1 - distances[best_match_index]) * 100, 2)
-                    else:
-                        name, confidence = "Unknown", 0
-
-                    # 绘制结果
-                    draw_results(frame, name, confidence, x1, y1, x2, y2)
-
-    return frame
-
-def start_video_stream():
-    """
-    启动摄像头视频流
-    每帧调用 process_frame() 进行人脸检测与识别
+    使用摄像头实时采集人脸：
+    - 正脸、左脸、右脸采集
+    - 自动保存图片
     """
     cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
-        print("Error: 无法打开摄像头！")
-        return
+        print("❌ 无法打开摄像头")
+        return None
 
-    while True:
+    count = 0
+    os.makedirs(save_dir, exist_ok=True)
+
+    while count < 3:
         ret, frame = cap.read()
 
         if not ret:
-            print("Error: 无法读取视频流！")
+            print("❌ 无法读取视频流")
             break
 
-        # 实时处理视频流
-        frame = process_frame(frame)
+        msg = ["请正对摄像头", "请向左转脸", "请向右转脸"][count]
+        cv2.putText(frame, msg, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.imshow("采集人脸", frame)
 
-        # 显示视频流
-        cv2.imshow("YOLOv8 实时人脸识别", frame)
+        img_path = os.path.join(save_dir, f"{username}_{count + 1}.jpg")
+        cv2.imwrite(img_path, frame)
 
-        # 按下 `q` 退出
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        print(f"✅ 已保存：{img_path}")
+        time.sleep(2)
+
+        count += 1
 
     cap.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    start_video_stream()
+    print(f"✅ 采集完成，图片保存至 {save_dir}")
+    return save_dir

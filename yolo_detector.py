@@ -1,4 +1,6 @@
 """
+yolo_detector.py
+
 YOLOv8 人脸检测
 
 将摄像头图像或上传图片传入 YOLOv8

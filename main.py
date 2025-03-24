@@ -1,12 +1,15 @@
 """
+main.py
+
 FastAPI服务
 人脸识别模块
 
 功能说明：
-    -可集成到RAG系统的前端
-    -前端调用 /register 接口，录入人脸
-    -每次对话前调用 /verify，验证人脸身份
-    -验证成功后加载用户对应的 RAG 记忆库
+
+FastAPI服务：
+ - 人脸注册与验证
+ - 支持实时摄像头采集
+ - 将人脸特征存储在数据库中
 
 使用说明：
     运行 FastAPI 服务：
@@ -18,48 +21,91 @@ FastAPI服务
     -/verify 验证人脸
     POST http://localhost:8000/verify 上传图片：`face2.jpg`
 """
-import shutil
+"""
+main.py
+FastAPI服务：
+ - 人脸注册与验证
+ - 支持实时摄像头采集
+ - 将人脸特征存储在数据库中
+"""
 
+import os
+import shutil
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException
-
 from face_recog import FaceAuth
+from db import init_db, save_user, load_users
+from video_stream import capture_face
 
 app = FastAPI()
+
+# 初始化数据库
+init_db()
 face_auth = FaceAuth()
 
 
-# 人脸注册接口
+# 注册人脸接口
 @app.post("/register")
-async def register(name: str, file: UploadFile = File(...)):
-    img_path = f"./data/{name}.jpg"
+async def register(name: str, file: UploadFile = File(None)):
+    """
+    注册人脸：
+    - 上传图片或通过摄像头采集
+    - 将人脸存储在数据库中
+    """
+    user_dir = f"./data/{name}"
+    os.makedirs(user_dir, exist_ok=True)
 
-    # 保存图片
-    with open(img_path, "wb") as img_file:
-        shutil.copyfileobj(file.file, img_file)
+    if file:
+        # 文件上传模式
+        img_path = f"{user_dir}/{name}.jpg"
+        with open(img_path, "wb") as img_file:
+            shutil.copyfileobj(file.file, img_file)
+    else:
+        # 实时摄像头模式
+        print("📸 未提供照片，使用摄像头采集...")
+        img_path = capture_face(user_dir, name)
 
-    # 注册人脸
-    if face_auth.register_face(name, img_path):
-        return {"message": f"User {name} registered successfully"}
-    raise HTTPException(status_code=400, detail="Face registration failed")
+    if img_path and face_auth.register_face(name, img_path):
+        print(f"✅ 用户 {name} 注册成功！")
+
+        # 将人脸编码存储到数据库
+        encoding = face_auth.get_encoding(img_path)
+        if encoding is not None:
+            save_user(name, encoding.tobytes())
+
+        return {"message": f"用户 {name} 注册成功"}
+    raise HTTPException(status_code=400, detail="人脸注册失败")
 
 
-# 人脸认证接口
+# 人脸验证接口
 @app.post("/verify")
-async def verify(file: UploadFile = File(...)):
-    img_path = "./temp_verify.jpg"
+async def verify(file: UploadFile = File(None)):
+    """
+    验证人脸：
+    - 上传图片或通过摄像头实时验证
+    - 自动遍历数据库
+    """
+    img_path = "./temp/temp_verify.jpg"
 
-    # 保存临时图片
-    with open(img_path, "wb") as img_file:
-        shutil.copyfileobj(file.file, img_file)
+    if file:
+        # 使用上传图片验证
+        with open(img_path, "wb") as img_file:
+            shutil.copyfileobj(file.file, img_file)
+    else:
+        # 实时摄像头验证
+        print("📸 未提供照片，使用摄像头实时检测...")
+        img_path = capture_face("./temp", "temp")
 
-    # 验证人脸
-    name, confidence = face_auth.verify_face(img_path)
+    # 遍历数据库进行验证
+    users = load_users()
+    for name, encoding_bytes in users:
+        encoding = face_auth.bytes_to_encoding(encoding_bytes)
+        matched, confidence = face_auth.compare_encoding(img_path, encoding)
 
-    if name:
-        return {"status": "success", "user": name, "confidence": confidence}
+        if matched:
+            return {"status": "success", "user": name, "confidence": confidence}
 
-    raise HTTPException(status_code=401, detail="Face not recognized")
+    raise HTTPException(status_code=401, detail="人脸识别失败")
 
 
 if __name__ == "__main__":
