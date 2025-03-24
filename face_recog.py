@@ -2,18 +2,22 @@
 人脸识别逻辑
 """
 
-import face_recognition
 import os
-import numpy as np
 import pickle
+
+import numpy as np
+
+import face_recognition
+
+from yolo_detector import YOLOv8Detector
 
 
 class FaceAuth:
-    def __init__(self, db_path='./data/face_db.pkl', model_path='./models/yolov8n-face.pt'):
+    def __init__(self, db_path='./data/face_db.pkl', model_path='./models/yolov8n.pt'):
         self.db_path = db_path
         self.known_face_encodings = []
         self.known_face_names = []
-        self.detector = YOLODetector(model_path)
+        self.detector = YOLOv8Detector(model_path)
 
         # 加载已存储的数据库
         if os.path.exists(db_path):

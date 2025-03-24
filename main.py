@@ -18,11 +18,12 @@ FastAPI服务
     -/verify 验证人脸
     POST http://localhost:8000/verify 上传图片：`face2.jpg`
 """
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from face_recognition import FaceAuth
-import uvicorn
 import shutil
-import os
+
+import uvicorn
+from fastapi import FastAPI, File, UploadFile, HTTPException
+
+from face_recog import FaceAuth
 
 app = FastAPI()
 face_auth = FaceAuth()

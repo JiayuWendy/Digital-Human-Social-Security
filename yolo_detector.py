@@ -5,11 +5,12 @@ YOLOv8 人脸检测
 
 YOLOv8 输出人脸边界框（x, y, w, h）
 
+
 将检测到的人脸区域裁剪并送入 face_recognition 进行比对
 
 """
 from ultralytics import YOLO
-import cv2
+import torch
 
 class YOLOv8Detector:
     def __init__(self, model_path="./models/yolov8n.pt"):

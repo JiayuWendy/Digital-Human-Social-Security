@@ -4,14 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/face_auth.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="first version (can‘t exec)">
+      <change beforePath="$PROJECT_DIR$/.idea/face_auth.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/face_auth.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/face_recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_recog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_stream.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_stream.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yolo_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolo_detector.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +39,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+    "Python.db.executor": "Run",
+    "Python.video_stream.executor": "Run",
+    "last_opened_file_path": "D:/Projects/face_auth/.venv/Scripts/python.exe",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  },
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": []
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -58,6 +64,38 @@
       <option name="presentableId" value="Default" />
       <updated>1742782460918</updated>
     </task>
+    <task id="LOCAL-00001" summary="first version (can‘t exec)">
+      <option name="closed" value="true" />
+      <created>1742785986328</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1742785986328</updated>
+    </task>
+    <task id="LOCAL-00002" summary="first version (can‘t exec)">
+      <option name="closed" value="true" />
+      <created>1742786202702</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1742786202702</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="first version (can‘t exec)" />
+    <option name="LAST_COMMIT_MESSAGE" value="first version (can‘t exec)" />
   </component>
 </project>

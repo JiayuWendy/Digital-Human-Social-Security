@@ -8,13 +8,20 @@
 """
 
 import cv2
-import face_recognition
 import numpy as np
-from yolo_detector import YOLOv8Detector
+from ultralytics import YOLO
+import torch
+
+import face_recognition
 from face_recognition import FaceAuth
+from yolo_detector import YOLOv8Detector
 
 # 初始化 YOLOv8 检测器和人脸识别模块
 MODEL_PATH = "./models/yolov8n.pt"
+
+# 禁用 PyTorch 的安全限制，允许加载所有内容
+torch.serialization.add_safe_globals([YOLO])
+
 detector = YOLOv8Detector(MODEL_PATH)
 auth = FaceAuth()
 
@@ -28,7 +35,7 @@ def draw_results(frame, name, confidence, x1, y1, x2, y2):
     color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
 
     # 绘制人脸框
-    cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), color, 2)
+    cv2.rectangle(frame, (int(x1), int(y1)), (int(x2, int(y2)), color, 2)
 
     # 显示名称和置信度
     label = f"{name} ({confidence}%)" if confidence else "Unknown"
@@ -45,23 +52,28 @@ def process_frame(frame):
 
     for x1, y1, x2, y2, face in faces:
         if face is not None and face.size > 0:
-            # 人脸编码比对
-            encodings = face_recognition.face_encodings(face)
+            # 打印 face 的类型和形状
+            print(type(face), face.shape)
 
-            if encodings:
-                encoding = encodings[0]
-                distances = face_recognition.face_distance(auth.known_face_encodings, encoding)
+            # 确保 face 是 numpy.ndarray 类型
+            if isinstance(face, np.ndarray):
+                # 人脸编码比对
+                encodings = face_recognition.face_encodings(face)
 
-                # 匹配最接近的人脸
-                best_match_index = np.argmin(distances)
-                if distances[best_match_index] < 0.6:
-                    name = auth.known_face_names[best_match_index]
-                    confidence = round((1 - distances[best_match_index]) * 100, 2)
-                else:
-                    name, confidence = "Unknown", 0
+                if encodings:
+                    encoding = encodings[0]
+                    distances = face_recognition.face_distance(auth.known_face_encodings, encoding)
 
-                # 绘制结果
-                draw_results(frame, name, confidence, x1, y1, x2, y2)
+                    # 匹配最接近的人脸
+                    best_match_index = np.argmin(distances)
+                    if distances[best_match_index] < 0.6:
+                        name = auth.known_face_names[best_match_index]
+                        confidence = round((1 - distances[best_match_index]) * 100, 2)
+                    else:
+                        name, confidence = "Unknown", 0
+
+                    # 绘制结果
+                    draw_results(frame, name, confidence, x1, y1, x2, y2)
 
     return frame
 

@@ -1,5 +1,3 @@
-c
-
 import sqlite3
 
 DB_FILE = "./data/faces.db"
