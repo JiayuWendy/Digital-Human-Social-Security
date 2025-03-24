@@ -13,12 +13,16 @@ YOLOv8 输出人脸边界框（x, y, w, h）
 """
 from ultralytics import YOLO
 import torch
+from torch.serialization import safe_globals
 
 class YOLOv8Detector:
     def __init__(self, model_path="./models/yolov8n.pt"):
         """
         初始化 YOLOv8 模型
         """
+        # 将 DetectionModel 加入安全加载白名单
+        safe_globals(['ultralytics.nn.tasks.DetectionModel'])
+
         self.model = YOLO(model_path)
 
     def detect_faces(self, frame, confidence_threshold=0.5):
