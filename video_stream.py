@@ -44,21 +44,71 @@ def put_chinese_text(frame, text, position, font_path="msyh.ttc", font_size=24, 
     return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
 
-# ✅ 修改摄像头认证函数（保持摄像头开启）
-def recognize_camera(encoding_dir="./encodings", timeout=120, keep_open_duration=30, font_path="msyh.ttc"):
-    """
-    实时认证：
-    - 从摄像头检测人脸
-    - 成功后摄像头保持开启一段时间
-    参数：
-    - encoding_dir: 特征编码文件夹路径
-    - timeout: 最大检测时间（秒）
-    - keep_open_duration: 检测成功后摄像头保持开启的时间（秒）
-    - font_path: 中文字体路径
-    """
+# ✅ 修改摄像头采集函数
+def capture_face_motion(save_dir, username, duration=15, fps=5, font_path="msyh.ttc"):
+    """使用摄像头实时采集人脸多帧"""
 
-    # 自动选择可用摄像头
-    camera_index = auto_detect_camera()
+    camera_index = auto_detect_camera()  # 自动选择可用摄像头
+    if camera_index == -1:
+        print("❌ 无法找到可用摄像头")
+        return []
+
+    cap = cv2.VideoCapture(camera_index)
+
+    if not cap.isOpened():
+        print("❌ 无法打开摄像头")
+        return []
+
+    os.makedirs(save_dir, exist_ok=True)
+
+    print("\n📸 请缓慢左右晃动头部进行采集...")
+    print(f"⏱️ 采集时间：{duration} 秒，每秒采集 {fps} 帧")
+
+    img_paths = []
+    frame_interval = 1 / fps
+    start_time = time.time()
+    last_capture_time = start_time
+    frame_count = 0
+
+    while time.time() - start_time < duration:
+        ret, frame = cap.read()
+        if not ret:
+            print("❌ 无法读取视频流")
+            break
+
+        elapsed_time = time.time() - start_time
+        progress = (elapsed_time / duration) * 100
+        msg = f"请左右缓慢晃头采集人脸信息: {progress:.1f}%"
+
+        frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
+
+        cv2.imshow("人脸采集", frame)
+
+        if time.time() - last_capture_time >= frame_interval:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            img_path = os.path.join(save_dir, f"{username}_{timestamp}_{frame_count}.jpg")
+            cv2.imwrite(img_path, frame)
+            img_paths.append(img_path)
+            print(f"✅ 已保存: {img_path}")
+
+            frame_count += 1
+            last_capture_time = time.time()
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    print(f"\n✅ 采集完成！共采集 {len(img_paths)} 张图片")
+    return img_paths
+
+
+# ✅ 修改摄像头认证函数
+def recognize_camera(encoding_dir="./encodings", timeout=120, camera_open_duration=10, font_path="msyh.ttc"):
+    """实时认证：从摄像头检测人脸"""
+
+    camera_index = auto_detect_camera()  # 自动选择可用摄像头
     if camera_index == -1:
         print("❌ 无法找到可用摄像头")
         return None
@@ -78,10 +128,12 @@ def recognize_camera(encoding_dir="./encodings", timeout=120, keep_open_duration
         cv2.destroyAllWindows()
         return None
 
-    authenticated = False
-    auth_start_time = None
-    recognized_user = None
-    confidence = 0.0
+    # 摄像头保持开启的时间
+    camera_start_time = time.time()
+
+    best_match = None  # 最佳匹配人脸
+    best_confidence = 0  # 最高置信度
+    best_name = None  # 最佳匹配的名字
 
     while time.time() - start_time < timeout:
         ret, frame = cap.read()
@@ -100,40 +152,41 @@ def recognize_camera(encoding_dir="./encodings", timeout=120, keep_open_duration
 
                     if results[0]:
                         confidence = 1 - face_distance
-                        msg = f"识别成功: {name} ({confidence:.2f})"
+                        # 比较当前检测到的置信度是否为最高
+                        if confidence > best_confidence:
+                            best_confidence = confidence
+                            best_name = name
+                            best_match = face_location
+
+                        msg = f"识别中: {name} ({confidence:.2f})"
                         frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
 
-                        display_face(frame, face_location, name, confidence)
+        # 显示检测中的信息
+        if best_match is not None:
+            display_face(frame, best_match, best_name, best_confidence)
 
-                        if not authenticated:
-                            authenticated = True
-                            auth_start_time = time.time()
-                            recognized_user = name
+        # 在没有检测到最佳人脸时，显示“检测中”
+        if best_match is None:
+            frame = put_chinese_text(frame, "⏳ 检测中...", (20, 50), font_path=font_path)
 
-        # 显示认证中或认证成功
-        if authenticated:
-            elapsed_since_auth = time.time() - auth_start_time
-            if elapsed_since_auth > keep_open_duration:
-                print(f"✅ 摄像头已保持开启 {keep_open_duration} 秒，关闭摄像头")
-                break
-            msg = f"✅ 已认证: {recognized_user} ({confidence:.2f})"
-        else:
-            msg = "⏳ 检测中..."
-
-        frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
         cv2.imshow("实时认证", frame)
+
+        # 检查摄像头开启时间是否超出限制
+        if time.time() - camera_start_time > camera_open_duration:
+            print(f"⏱️ 摄像头开启时间超过 {camera_open_duration} 秒，强制关闭摄像头")
+            cap.release()
+            cv2.destroyAllWindows()
+            break
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    cap.release()
-    cv2.destroyAllWindows()
-
-    if authenticated:
-        print(f"✅ 认证成功: {recognized_user} ({confidence:.2f})")
-        return recognized_user, confidence
+    # 如果有最佳匹配结果，返回最优的人脸信息，否则返回“未识别”
+    if best_name and best_confidence > 0:
+        print(f"✅ 认证成功: {best_name} ({best_confidence:.2f})")
+        return best_name, best_confidence
     else:
-        print("⏱️ 超时，认证失败")
+        print("❌ 超时或未检测到有效的人脸")
         return None
 
 
