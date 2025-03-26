@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="first version (can‘t exec)">
-      <change beforePath="$PROJECT_DIR$/.idea/face_auth.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/face_auth.iml" afterDir="false" />
+    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="third version (partly exec)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/face_recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_recog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/face_recog.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_recog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/video_stream.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_stream.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yolo_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/yolo_detector.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,17 +34,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.db.executor": "Run",
-    "Python.video_stream.executor": "Run",
-    "last_opened_file_path": "D:/Projects/face_auth/.venv/Scripts/python.exe",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.db.executor&quot;: &quot;Run&quot;,
+    &quot;Python.video_stream.executor&quot;: &quot;Run&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Projects/face_auth/.venv/Scripts/python.exe&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   },
-  "keyToStringList": {
-    "ChangesTree.GroupingKeys": []
+  &quot;keyToStringList&quot;: {
+    &quot;ChangesTree.GroupingKeys&quot;: []
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -80,7 +77,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742786202702</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="third version (partly exec)">
+      <option name="closed" value="true" />
+      <created>1742908652912</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1742908652912</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -96,6 +101,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="first version (can‘t exec)" />
-    <option name="LAST_COMMIT_MESSAGE" value="first version (can‘t exec)" />
+    <MESSAGE value="second version (partly exec)" />
+    <MESSAGE value="third version (partly exec)" />
+    <option name="LAST_COMMIT_MESSAGE" value="third version (partly exec)" />
   </component>
 </project>
