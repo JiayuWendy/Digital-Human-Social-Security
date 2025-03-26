@@ -105,7 +105,7 @@ def capture_face_motion(save_dir, username, duration=15, fps=5, font_path="msyh.
 
 
 # ✅ 修改摄像头认证函数
-def recognize_camera(encoding_dir="./encodings", timeout=120, camera_open_duration=10, font_path="msyh.ttc"):
+def recognize_camera(encoding_dir="./encodings", timeout=120, camera_open_duration=30, font_path="msyh.ttc"):
     """实时认证：从摄像头检测人脸"""
 
     camera_index = auto_detect_camera()  # 自动选择可用摄像头
