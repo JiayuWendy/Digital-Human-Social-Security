@@ -104,9 +104,9 @@ def capture_face_motion(save_dir, username, duration=15, fps=5, font_path="msyh.
     return img_paths
 
 
-# ✅ 修改摄像头认证函数（支持中文标签）
-def recognize_camera(encoding_dir="./encodings", timeout=60, detection_duration=20, font_path="msyh.ttc"):
-    """实时认证：从摄像头检测人脸，并显示中文标签"""
+# ✅ 修改摄像头认证函数（新增 70% 匹配限制）
+def recognize_camera(encoding_dir="./encodings", timeout=120, detection_duration=20, font_path="msyh.ttc", min_confidence=0.7):
+    """实时认证：从摄像头检测人脸，仅当匹配度高于70%时才通过"""
 
     camera_index = auto_detect_camera()  # 自动选择可用摄像头
     if camera_index == -1:
@@ -130,13 +130,12 @@ def recognize_camera(encoding_dir="./encodings", timeout=60, detection_duration=
 
     # 设定每次摄像头开启的时间段
     camera_start_time = time.time()
-    best_match = None  # 最佳匹配人脸
-    best_confidence = 0  # 最高置信度
-    best_name = None  # 最佳匹配的名字
+    best_match = None
+    best_confidence = 0
+    best_name = None
 
-    # 在 timeout 时间内一直进行检测
+    # 在timeout时间内一直进行检测
     while time.time() - start_time < timeout:
-        # 检测时间段
         detection_start_time = time.time()
 
         while time.time() - detection_start_time < detection_duration:
@@ -156,20 +155,21 @@ def recognize_camera(encoding_dir="./encodings", timeout=60, detection_duration=
 
                         if results[0]:
                             confidence = 1 - face_distance
+
                             # 比较当前检测到的置信度是否为最高
                             if confidence > best_confidence:
                                 best_confidence = confidence
                                 best_name = name
                                 best_match = face_location
 
+                            # 显示置信度
                             msg = f"识别中: {name} ({confidence:.2f})"
                             frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
 
-            # 显示检测中的信息
+            # 显示检测信息
             if best_match is not None:
-                display_face(frame, best_match, best_name, best_confidence, font_path)
+                display_face(frame, best_match, best_name, best_confidence)
 
-            # 在没有检测到最佳人脸时，显示“检测中”
             if best_match is None:
                 frame = put_chinese_text(frame, "⏳ 检测中...", (20, 50), font_path=font_path)
 
@@ -178,11 +178,15 @@ def recognize_camera(encoding_dir="./encodings", timeout=60, detection_duration=
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        if best_match is not None and best_confidence > 0:
-            print(f"✅ 检测结果: {best_name} ({best_confidence:.2f})")
-            cap.release()
-            cv2.destroyAllWindows()
-            return best_name, best_confidence
+        # 每次检测周期结束后检查结果
+        if best_match is not None:
+            if best_confidence >= min_confidence:
+                print(f"✅ 认证通过: {best_name} ({best_confidence:.2f})")
+                cap.release()
+                cv2.destroyAllWindows()
+                return best_name, best_confidence
+            else:
+                print(f"❌ 认证失败，置信度过低: {best_confidence:.2f}")
 
         if time.time() - camera_start_time > timeout:
             print(f"⏱️ 超过最大检测时间: {timeout}秒，认证失败")

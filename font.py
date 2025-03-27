@@ -1,74 +1,82 @@
-"""font.py"""
 import os
 import urllib.request
+import zipfile
+import shutil
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 
-# ✅ 字体下载函数
-def download_font(font_url, save_path):
+# ✅ 字体下载与解压
+def download_and_extract_font(zip_url, save_dir):
     """
-    下载字体文件
-    :param font_url: 下载链接
-    :param save_path: 保存路径
+    下载并解压字体压缩包
+    :param zip_url: 字体压缩包下载链接
+    :param save_dir: 解压后的保存路径
     """
+    os.makedirs(save_dir, exist_ok=True)
+
+    zip_path = os.path.join(save_dir, "font.zip")
+
     try:
-        print(f"⬇️ 正在下载字体: {font_url}")
-        urllib.request.urlretrieve(font_url, save_path)
-        print(f"✅ 字体下载成功: {save_path}")
-        return True
+        print(f"⬇️ 正在下载字体压缩包: {zip_url}")
+        urllib.request.urlretrieve(zip_url, zip_path)
+        print(f"✅ 下载完成: {zip_path}")
+
+        # 解压字体包
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(save_dir)
+
+        print(f"✅ 字体解压完成: {save_dir}")
+
+        # 删除压缩包
+        os.remove(zip_path)
+
     except Exception as e:
-        print(f"❌ 下载字体失败: {e}")
-        return False
+        print(f"❌ 下载或解压字体失败: {e}")
 
 
 # ✅ 自动选择字体
-def get_font(font_path="msyh.ttc", font_size=24):
+def get_font(font_dir="fonts", font_size=24):
     """
     自动加载字体：
-    - 优先使用指定字体路径
-    - 如果不存在，则自动下载
-    - 离线环境提示手动下载
+    - 检测字体文件是否存在
+    - 如果不存在，则自动下载并解压
     """
-    # 检测字体文件是否存在
+    font_name = "msyh.ttc"  # 中文字体名称
+    font_path = os.path.join(font_dir, font_name)
+
+    # 检测字体是否存在
     if os.path.exists(font_path):
         print(f"✅ 使用本地字体: {font_path}")
         return ImageFont.truetype(font_path, font_size)
 
-    # 字体存储路径
-    fonts_dir = os.path.join(os.getcwd(), "fonts")
-    os.makedirs(fonts_dir, exist_ok=True)
+    # 字体项目压缩包地址（使用 GitHub 项目）
+    font_zip_url = "https://github.com/CroesusSo/msyh/archive/refs/heads/main.zip"
 
-    # 字体文件路径
-    font_file = os.path.join(fonts_dir, "msyh.ttc")
+    print("⚠️ 字体文件不存在，尝试自动下载...")
 
-    # ✅ 下载字体
-    font_urls = [
-        "https://github.com/google/fonts/raw/main/apache/noto/NotoSansSC-Regular.otf",  # 开源字体
-        "https://github.com/adobe-fonts/source-han-sans/raw/release/SubsetOTF/SourceHanSansSC-Regular.otf"
-    ]
+    # 下载并解压字体
+    download_and_extract_font(font_zip_url, font_dir)
 
-    # 如果本地字体不存在，则自动下载
-    if not os.path.exists(font_file):
-        print("⚠️ 未找到字体文件，尝试自动下载...")
+    # 解压后的目录结构修复
+    extracted_dir = os.path.join(font_dir, "msyh-main")
 
-        # 尝试下载字体
-        success = False
-        for url in font_urls:
-            if download_font(url, font_file):
-                success = True
-                break
+    # 将字体文件移动到 fonts 目录
+    for root, _, files in os.walk(extracted_dir):
+        for file in files:
+            if file.endswith(".ttc") or file.endswith(".ttf") or file.endswith(".otf"):
+                shutil.move(os.path.join(root, file), os.path.join(font_dir, file))
+                print(f"✅ 移动字体: {file}")
 
-        if not success:
-            print("❌ 无法自动下载字体，请手动下载并放置到 fonts 目录下！")
-            return ImageFont.load_default()
+    # 删除临时解压文件夹
+    shutil.rmtree(extracted_dir)
 
-    # 加载下载的字体
-    try:
-        return ImageFont.truetype(font_file, font_size)
-    except IOError:
-        print("❌ 加载字体失败，使用默认字体")
+    # 检测字体是否成功下载
+    if os.path.exists(font_path):
+        return ImageFont.truetype(font_path, font_size)
+    else:
+        print("❌ 字体加载失败，使用默认字体")
         return ImageFont.load_default()
 
 
