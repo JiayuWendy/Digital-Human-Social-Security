@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="third version (partly exec)">
+    <list default="true" id="6dea8e2d-9a26-4262-825c-500b554ad2f1" name="更改" comment="fifth version : can register and verify">
+      <change afterPath="$PROJECT_DIR$/font.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/face_recog.py" beforeDir="false" afterPath="$PROJECT_DIR$/face_recog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/video_stream.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_stream.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +38,7 @@
     &quot;Python.db.executor&quot;: &quot;Run&quot;,
     &quot;Python.video_stream.executor&quot;: &quot;Run&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Projects/face_auth/.venv/Scripts/python.exe&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
   },
   &quot;keyToStringList&quot;: {
     &quot;ChangesTree.GroupingKeys&quot;: []
@@ -85,7 +84,47 @@
       <option name="project" value="LOCAL" />
       <updated>1742908652912</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="forth version : can register and verify">
+      <option name="closed" value="true" />
+      <created>1743001435033</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1743001435033</updated>
+    </task>
+    <task id="LOCAL-00005" summary="forth version : can register and verify">
+      <option name="closed" value="true" />
+      <created>1743002360947</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743002360947</updated>
+    </task>
+    <task id="LOCAL-00006" summary="forth version : can register and verify">
+      <option name="closed" value="true" />
+      <created>1743002589869</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1743002589869</updated>
+    </task>
+    <task id="LOCAL-00007" summary="forth version : can register and verify">
+      <option name="closed" value="true" />
+      <created>1743002687390</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1743002687390</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fifth version : can register and verify">
+      <option name="closed" value="true" />
+      <created>1743055967790</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1743055967790</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -103,6 +142,8 @@
     <MESSAGE value="first version (can‘t exec)" />
     <MESSAGE value="second version (partly exec)" />
     <MESSAGE value="third version (partly exec)" />
-    <option name="LAST_COMMIT_MESSAGE" value="third version (partly exec)" />
+    <MESSAGE value="forth version : can register and verify" />
+    <MESSAGE value="fifth version : can register and verify" />
+    <option name="LAST_COMMIT_MESSAGE" value="fifth version : can register and verify" />
   </component>
 </project>

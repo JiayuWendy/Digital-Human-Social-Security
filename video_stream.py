@@ -104,9 +104,9 @@ def capture_face_motion(save_dir, username, duration=15, fps=5, font_path="msyh.
     return img_paths
 
 
-# ✅ 修改摄像头认证函数
-def recognize_camera(encoding_dir="./encodings", timeout=120, camera_open_duration=30, font_path="msyh.ttc"):
-    """实时认证：从摄像头检测人脸"""
+# ✅ 修改摄像头认证函数（支持中文标签）
+def recognize_camera(encoding_dir="./encodings", timeout=60, detection_duration=20, font_path="msyh.ttc"):
+    """实时认证：从摄像头检测人脸，并显示中文标签"""
 
     camera_index = auto_detect_camera()  # 自动选择可用摄像头
     if camera_index == -1:
@@ -128,66 +128,70 @@ def recognize_camera(encoding_dir="./encodings", timeout=120, camera_open_durati
         cv2.destroyAllWindows()
         return None
 
-    # 摄像头保持开启的时间
+    # 设定每次摄像头开启的时间段
     camera_start_time = time.time()
-
     best_match = None  # 最佳匹配人脸
     best_confidence = 0  # 最高置信度
     best_name = None  # 最佳匹配的名字
 
+    # 在 timeout 时间内一直进行检测
     while time.time() - start_time < timeout:
-        ret, frame = cap.read()
-        if not ret:
-            print("❌ 无法读取视频流")
-            break
+        # 检测时间段
+        detection_start_time = time.time()
 
-        face_locations = face_recognition.face_locations(frame)
-        face_encodings = face_recognition.face_encodings(frame, face_locations)
+        while time.time() - detection_start_time < detection_duration:
+            ret, frame = cap.read()
+            if not ret:
+                print("❌ 无法读取视频流")
+                break
 
-        if face_encodings:
-            for face_encoding, face_location in zip(face_encodings, face_locations):
-                for name, encoding in encodings.items():
-                    results = face_recognition.compare_faces([encoding], face_encoding)
-                    face_distance = face_recognition.face_distance([encoding], face_encoding)[0]
+            face_locations = face_recognition.face_locations(frame)
+            face_encodings = face_recognition.face_encodings(frame, face_locations)
 
-                    if results[0]:
-                        confidence = 1 - face_distance
-                        # 比较当前检测到的置信度是否为最高
-                        if confidence > best_confidence:
-                            best_confidence = confidence
-                            best_name = name
-                            best_match = face_location
+            if face_encodings:
+                for face_encoding, face_location in zip(face_encodings, face_locations):
+                    for name, encoding in encodings.items():
+                        results = face_recognition.compare_faces([encoding], face_encoding)
+                        face_distance = face_recognition.face_distance([encoding], face_encoding)[0]
 
-                        msg = f"识别中: {name} ({confidence:.2f})"
-                        frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
+                        if results[0]:
+                            confidence = 1 - face_distance
+                            # 比较当前检测到的置信度是否为最高
+                            if confidence > best_confidence:
+                                best_confidence = confidence
+                                best_name = name
+                                best_match = face_location
 
-        # 显示检测中的信息
-        if best_match is not None:
-            display_face(frame, best_match, best_name, best_confidence)
+                            msg = f"识别中: {name} ({confidence:.2f})"
+                            frame = put_chinese_text(frame, msg, (20, 50), font_path=font_path)
 
-        # 在没有检测到最佳人脸时，显示“检测中”
-        if best_match is None:
-            frame = put_chinese_text(frame, "⏳ 检测中...", (20, 50), font_path=font_path)
+            # 显示检测中的信息
+            if best_match is not None:
+                display_face(frame, best_match, best_name, best_confidence, font_path)
 
-        cv2.imshow("实时认证", frame)
+            # 在没有检测到最佳人脸时，显示“检测中”
+            if best_match is None:
+                frame = put_chinese_text(frame, "⏳ 检测中...", (20, 50), font_path=font_path)
 
-        # 检查摄像头开启时间是否超出限制
-        if time.time() - camera_start_time > camera_open_duration:
-            print(f"⏱️ 摄像头开启时间超过 {camera_open_duration} 秒，强制关闭摄像头")
+            cv2.imshow("实时认证", frame)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        if best_match is not None and best_confidence > 0:
+            print(f"✅ 检测结果: {best_name} ({best_confidence:.2f})")
+            cap.release()
+            cv2.destroyAllWindows()
+            return best_name, best_confidence
+
+        if time.time() - camera_start_time > timeout:
+            print(f"⏱️ 超过最大检测时间: {timeout}秒，认证失败")
             cap.release()
             cv2.destroyAllWindows()
             break
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # 如果有最佳匹配结果，返回最优的人脸信息，否则返回“未识别”
-    if best_name and best_confidence > 0:
-        print(f"✅ 认证成功: {best_name} ({best_confidence:.2f})")
-        return best_name, best_confidence
-    else:
-        print("❌ 超时或未检测到有效的人脸")
-        return None
+    print("❌ 未检测到有效的人脸，认证失败")
+    return None
 
 
 # ✅ 加载人脸编码
@@ -209,11 +213,12 @@ def load_encodings(encoding_dir):
     return encodings
 
 
-# ✅ 显示人脸与标签
-def display_face(frame, face_location, name, confidence):
+# ✅ 显示人脸与标签（支持中文标签）
+def display_face(frame, face_location, name, confidence, font_path="msyh.ttc"):
     """在视频流中显示人脸框和标签"""
     top, right, bottom, left = face_location
     cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+
     label = f"{name} ({confidence:.2f})"
-    frame = put_chinese_text(frame, label, (left, top - 30), font_path="msyh.ttc")
+    frame = put_chinese_text(frame, label, (left, top - 30), font_path=font_path)
     cv2.imshow("实时认证", frame)
