@@ -1,0 +1,6 @@
+除了代码以外 ，还需要在https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb/tree/main网站下载
+classifier.ckpt
+embedding_model.ckpt
+hyperparams
+mean_var_norm_emb.ckpt
+这四个文件到"face-speaker-rag\pretrained_models\spkrec-ecapa-voxceleb"文件夹中
